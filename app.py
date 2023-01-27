@@ -7,14 +7,15 @@ from flask import Flask, jsonify, request
 from model.network import Network
 
 app = Flask(__name__)
-model = Network()
-model.load_state_dict(torch.load('data/model_checkpoint.pth'))
-model.eval()
 
 classes = []
 with open('data/unique_cats.txt') as f:
     for line in f:
         classes.append(line.strip())
+
+model = Network(classes)
+model.load_state_dict(torch.load('data/model_checkpoint.pth'))
+model.eval()
 
 
 def transform_image(file):

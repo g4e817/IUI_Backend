@@ -1,12 +1,11 @@
 from torch import nn as nn
 from torch.nn import functional as F
 
-from train_model import classes
-
 
 class Network(nn.Module):
-    def __init__(self):
+    def __init__(self, classes):
         super(Network, self).__init__()
+        self.classes = classes
 
         self.conv1 = nn.Conv2d(in_channels=3, out_channels=12, kernel_size=5, stride=1, padding=1)
         self.bn1 = nn.BatchNorm2d(12)
@@ -17,7 +16,7 @@ class Network(nn.Module):
         self.bn4 = nn.BatchNorm2d(24)
         self.conv5 = nn.Conv2d(in_channels=24, out_channels=24, kernel_size=5, stride=1, padding=1)
         self.bn5 = nn.BatchNorm2d(24)
-        self.fc1 = nn.Linear(24 * 10 * 10, len(classes))
+        self.fc1 = nn.Linear(24 * 10 * 10, len(self.classes))
 
     def forward(self, input):
         output = F.relu(self.bn1(self.conv1(input)))

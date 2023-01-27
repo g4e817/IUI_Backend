@@ -10,7 +10,8 @@ from torch.utils.data import DataLoader
 from model.dataset import CustomDataSet
 from model.network import Network
 
-batch_size = 2**7
+batch_size = 2 ** 7
+
 
 def load_classes():
     classes = []
@@ -118,19 +119,38 @@ def test_batch():
                                   for j in range(batch_size)))
 
 
-train_dataset = CustomDataSet('data/images/', 'data/cleaned_train.jsonl')
-train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
+def test_classess():
+    class_correct = list(0. for i in range(len(classes)))
+    class_total = list(0. for i in range(len(classes)))
+    with torch.no_grad():
+        for data in test_loader:
+            images, labels = data
+            outputs = model(images)
+            _, predicted = torch.max(outputs, 1)
+            c = (predicted == labels).squeeze()
+            for i in range(batch_size):
+                label = labels[i]
+                class_correct[label] += c[i].item()
+                class_total[label] += 1
 
-test_dataset = CustomDataSet('data/images/', 'data/cleaned_test.jsonl')
-test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
+    for i in range(len(classes)):
+        print('Accuracy of %5s : %2d %%' % (
+            classes[i], 100 * class_correct[i] / class_total[i]))
 
-print("number of images in test", len(train_loader) * batch_size)
-print("number of images in train", len(test_loader) * batch_size)
 
 classes = load_classes()
 print("number of classes", len(classes))
 
-model = Network()
+train_dataset = CustomDataSet(classes, 'data/images/', 'data/cleaned_train.jsonl')
+train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=0)
+
+test_dataset = CustomDataSet(classes, 'data/images/', 'data/cleaned_test.jsonl')
+test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
+
+print("number of images in test", len(train_loader) * batch_size)
+print("number of images in train", len(test_loader) * batch_size)
+
+model = Network(classes)
 
 # Define the loss function with Classification Cross-Entropy loss and an optimizer with Adam optimizer
 loss_fn = nn.CrossEntropyLoss()
@@ -148,13 +168,14 @@ print("The model will be running on", device, "device")
 # Convert model parameters and buffers to CPU or Cuda
 model.to(device)
 
-train(num_epochs=5)
-print("Finished training")
-
-test_accuracy()
+# train(num_epochs=5)
+# print("Finished training")
+#
+# test_accuracy()
 
 # Load best network (best accuracy)
-model = Network()
+model = Network(classes)
 model.load_state_dict(torch.load('data/model_checkpoint.pth'))
 
 test_batch()
+# test_classess()

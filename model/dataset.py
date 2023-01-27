@@ -6,11 +6,10 @@ from PIL import Image
 from torch.utils.data import Dataset
 from torchvision import transforms as transforms
 
-from train_model import classes
-
 
 class CustomDataSet(Dataset):
-    def __init__(self, images_path, json_path):
+    def __init__(self, classes, images_path, json_path):
+        self.classes = classes
         self.images_path = images_path
         self.json_path = json_path
         self.recipes = self.get_recipes(json_path)
@@ -46,7 +45,7 @@ class CustomDataSet(Dataset):
 
         tensor = self.get_image_tensor(recipe['image'])
         # indices = torch.as_tensor(le.transform(cats))
-        index = torch.as_tensor(classes.index(cat))
+        index = torch.as_tensor(self.classes.index(cat))
 
         return tensor, index
 
