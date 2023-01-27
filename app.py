@@ -1,13 +1,10 @@
-import json
-
 import torch
 import torch.nn.functional as nnf
-import torchvision.models as models
 import torchvision.transforms as transforms
 from PIL import Image
 from flask import Flask, jsonify, request
 
-from train_model import Network
+from model.network import Network
 
 app = Flask(__name__)
 model = Network()
@@ -18,6 +15,7 @@ classes = []
 with open('data/unique_cats.txt') as f:
     for line in f:
         classes.append(line.strip())
+
 
 def transform_image(file):
     trans = transforms.Compose([
