@@ -1,25 +1,30 @@
 import json
 
+import torch
 import torch.nn.functional as nnf
 import torchvision.models as models
 import torchvision.transforms as transforms
 from PIL import Image
 from flask import Flask, jsonify, request
 
+from train_model import Network
+
 app = Flask(__name__)
-model = models.densenet121(pretrained=True)
+model = Network()
+model.load_state_dict(torch.load('data/model_checkpoint.pth'))
 model.eval()
 
-with open('data/index_to_name.json') as f:
-    class_map = json.load(f)
-
+classes = []
+with open('data/unique_cats.txt') as f:
+    for line in f:
+        classes.append(line.strip())
 
 def transform_image(file):
     trans = transforms.Compose([
-        transforms.Resize(255),
-        transforms.CenterCrop(224),
+        transforms.Resize(36),
+        transforms.CenterCrop(32),
         transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
     ])
     image = Image.open(file)
     tensor = trans(image)
@@ -37,9 +42,8 @@ def get_pred(tensor, n=5):
 def render_pred(pred):
     probs = []
     for (prob, id) in pred:
-        if str(id) in class_map:
-            name = class_map[str(id)][1]
-            probs.append((name, prob))
+        name = classes[id]
+        probs.append((name, prob))
 
     return probs
 
