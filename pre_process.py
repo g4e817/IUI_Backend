@@ -33,9 +33,13 @@ with open('data/cleaned.jsonl', 'w') as f:
                 new_cat = cat.replace("Rezepte", "")
                 new_cat = new_cat.strip()
                 new_cat = convert_umlauts(new_cat)
+                new_cat = new_cat.lower()
+                # TODO: clean other special characters
                 if new_cat not in stoplist:
                     unique_cats.add(new_cat)
                     cleaned_cats.append(new_cat)
+            if len(cleaned_cats) <= 0:
+                continue
             item['categories'] = cleaned_cats
             f.write(json.dumps(item) + "\n")
 

@@ -12,9 +12,14 @@ pip install -r requirements.txt
 ## Run crawler
 ```bash
 cd crawler
+# Crawl data
 scrapy crawl gutekueche
+# Process data
 python3 pre_process.py
+# Download images
 python3 get_images.py
+# Split into test/train
+bash split.sh
 ```
 
 ## Train model
