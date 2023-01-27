@@ -1,6 +1,5 @@
 import json
 import os
-import random
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,10 +12,9 @@ from PIL import Image
 from torch.autograd import Variable
 from torch.optim import Adam
 from torch.utils.data import Dataset, DataLoader
-from torchvision.datasets import CIFAR10
 
 batch_size = 2**7
-
+resume = True
 
 def load_classes():
     classes = []
@@ -200,32 +198,23 @@ def testBatch():
                                   for j in range(batch_size)))
 
 
-# transformations = transforms.Compose([
-#     transforms.ToTensor(),
-#     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-# ])
-
 train_dataset = CustomDataSet('data/images/', 'data/cleaned_train.jsonl')
-# train_dataset = CIFAR10(root="./data", train=True, transform=transformations, download=True)
-train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=8)
+train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
 
 test_dataset = CustomDataSet('data/images/', 'data/cleaned_test.jsonl')
-# test_dataset = CIFAR10(root="./data", train=False, transform=transformations, download=True)
-test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=8)
+test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
 
 print("number of images in test", len(train_loader) * batch_size)
 print("number of images in train", len(test_loader) * batch_size)
 
 classes = load_classes()
-# classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-# le = LabelEncoder()
-# le.fit(classes)
 print("number of classes", len(classes))
 
 # Instantiate a neural network model
 model = Network()
 # Resume
-model.load_state_dict(torch.load('data/model_checkpoint.pth'))
+if resume:
+    model.load_state_dict(torch.load('data/model_checkpoint.pth'))
 
 # Define the loss function with Classification Cross-Entropy loss and an optimizer with Adam optimizer
 loss_fn = nn.CrossEntropyLoss()
