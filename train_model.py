@@ -110,6 +110,10 @@ def testAccuracy():
     with torch.no_grad():
         for data in test_loader:
             images, labels = data
+            # get the inputs
+            images = images.to(device)
+            labels = labels.to(device)
+
             # run the model on the test set to predict labels
             outputs = model(images)
             # the label with the highest energy will be our prediction
@@ -125,12 +129,6 @@ def testAccuracy():
 # Training function. We simply have to loop over our data iterator and feed the inputs to the network and optimize.
 def train(num_epochs):
     best_accuracy = 0.0
-
-    # Define your execution device
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print("The model will be running on", device, "device")
-    # Convert model parameters and buffers to CPU or Cuda
-    model.to(device)
 
     for epoch in range(num_epochs):  # loop over the dataset multiple times
         running_loss = 0.0
@@ -202,10 +200,10 @@ def testBatch():
                                   for j in range(batch_size)))
 
 
-transformations = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-])
+# transformations = transforms.Compose([
+#     transforms.ToTensor(),
+#     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+# ])
 
 train_dataset = CustomDataSet('data/images/', 'data/cleaned_train.jsonl')
 # train_dataset = CIFAR10(root="./data", train=True, transform=transformations, download=True)
@@ -226,10 +224,24 @@ print("number of classes", len(classes))
 
 # Instantiate a neural network model
 model = Network()
+# Resume
+model.load_state_dict(torch.load('data/model_checkpoint.pth'))
 
 # Define the loss function with Classification Cross-Entropy loss and an optimizer with Adam optimizer
 loss_fn = nn.CrossEntropyLoss()
 optimizer = Adam(model.parameters(), lr=0.001, weight_decay=0.0001)
+
+# Define your execution device
+device_name = "cpu"
+if torch.cuda.is_available():
+    device_name = "cuda:0"
+elif torch.backends.mps.is_available():
+    device_name = "mps"
+
+device = torch.device(device_name)
+print("The model will be running on", device, "device")
+# Convert model parameters and buffers to CPU or Cuda
+model.to(device)
 
 if __name__ == '__main__':
     train(num_epochs=5)
