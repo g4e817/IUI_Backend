@@ -10,7 +10,7 @@ from tqdm import tqdm
 from model.dataset import CustomDataSet
 from model.metrics import plot_scores, plot_losses, plot_lrs
 from model.network2 import RecipeModelV2
-from model.util import load_classes, get_default_device, DeviceDataLoader, to_device, save_checkpoint, show_example
+from model.util import load_classes, get_default_device, DeviceDataLoader, to_device, save_checkpoint
 
 batch_size = 32
 
@@ -87,11 +87,11 @@ def main():
     print("number of classes", len(classes))
 
     train_dataset = CustomDataSet(classes, 'data/images/', 'data/cleaned_train.jsonl', v2=True)
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=0)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=8)
     train_dl = DeviceDataLoader(train_loader, device)
 
     test_dataset = CustomDataSet(classes, 'data/images/', 'data/cleaned_test.jsonl', test=True, v2=True)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=8)
     test_dl = DeviceDataLoader(test_loader, device)
 
     print("number of images in test", len(train_loader) * batch_size)
@@ -103,6 +103,7 @@ def main():
     #     print(img.shape)
     #     print(label.shape)
     #     exit(0)
+    # show_batch(train_loader)
 
     # Input 3 channels (=3 colors)
     # Output 100 channels (=all labels)
@@ -110,13 +111,20 @@ def main():
 
     # Show structure
     # print(model)
+    # for images, labels in train_dl:
+    #     print(images.shape)
+    #     outputs = model(images)
+    #     break
+    #
+    # print('output shape', outputs.shape)
+    # print('sample output', outputs[:2].data)
 
-    epochs = 3
+    epochs = 1
     max_lr = 0.001
     grad_clip = 0.1
     weight_decay = 0.0001
 
-    history = []
+    history = [evaluate(model, train_dl)]
     start = time.perf_counter()
 
     history += train(epochs, max_lr, model, train_dl, test_dl,

@@ -28,22 +28,24 @@ def F_score(output, label, threshold=0.5, beta=1):
 
 
 def plot_scores(history):
-    scores = [x['val_score'] for x in history]
+    scores = [x['test_score'] for x in history]
     plt.plot(scores, '-x')
     plt.xlabel('epoch')
     plt.ylabel('score')
     plt.title('F1 score vs. No. of epochs')
+    plt.show()
 
 
 def plot_losses(history):
     train_losses = [x.get('train_loss') for x in history]
-    val_losses = [x['val_loss'] for x in history]
+    test_losses = [x['test_loss'] for x in history]
     plt.plot(train_losses, '-bx')
-    plt.plot(val_losses, '-rx')
+    plt.plot(test_losses, '-rx')
     plt.xlabel('epoch')
     plt.ylabel('loss')
     plt.legend(['Training', 'Validation'])
     plt.title('Loss vs. No. of epochs')
+    plt.show()
 
 
 def plot_lrs(history):
@@ -52,3 +54,4 @@ def plot_lrs(history):
     plt.xlabel('Batch no.')
     plt.ylabel('Learning rate')
     plt.title('Learning Rate vs. Batch no.')
+    plt.show()

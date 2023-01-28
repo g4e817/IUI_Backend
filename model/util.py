@@ -87,4 +87,5 @@ def show_batch(dl, nmax=16):
         ax.set_xticks([])
         ax.set_yticks([])
         ax.imshow(make_grid(denorm(images[:nmax]), nrow=4).permute(1, 2, 0))
+        plt.show()
         break
