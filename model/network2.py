@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as nnf
@@ -102,9 +104,14 @@ class RecipeModelV2(ClassificationBase):
 class resnetnew(ClassificationBase):
     def __init__(self, num_classes):
         super().__init__()
-        self.resnet = models.densenet161(pretrained=True)
-        self.resnet.fc = nn.Linear(self.resnet.fc.in_features, num_classes)
+        self.densenet = models.densenet161(pretrained=True)
+        self.densenet.classifier = nn.Sequential(OrderedDict([
+            ('fc1', nn.Linear(1024, 500)),
+            ('relu', nn.ReLU()),
+            ('fc2', nn.Linear(500, num_classes)),
+            ('output', nn.LogSoftmax(dim=1))
+        ]))
 
     def forward(self, xb):
-        out = self.resnet(xb)
+        out = self.densenet(xb)
         return out
