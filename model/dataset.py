@@ -107,6 +107,8 @@ class FoodDataSet(Dataset):
 
         trans = transforms.Compose(pipeline)
         image = Image.open(filepath)
+        if image.mode == "L":
+            return torch.as_tensor([0.0, 0.0, 0.0])
         tensor = trans(image)
         return tensor
 

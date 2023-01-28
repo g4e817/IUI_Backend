@@ -104,7 +104,7 @@ class RecipeModelV2(ClassificationBase):
 class resnetnew(ClassificationBase):
     def __init__(self, num_classes):
         super().__init__()
-        self.resnet = models.resnet50(pretrained=True)
+        self.resnet = models.resnet18(pretrained=True)
         num_ftrs = self.resnet.fc.in_features
         self.resnet.fc = nn.Linear(num_ftrs, num_classes)
 

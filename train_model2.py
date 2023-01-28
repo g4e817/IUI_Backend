@@ -14,7 +14,7 @@ from model.metrics import plot_scores, plot_losses, plot_lrs
 from model.network2 import RecipeModelV2, resnetnew
 from model.util import load_classes, get_default_device, DeviceDataLoader, to_device, save_checkpoint, load_food_classes
 
-batch_size = 32
+batch_size = 64
 
 
 @torch.no_grad()
