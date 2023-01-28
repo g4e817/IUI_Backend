@@ -1,5 +1,6 @@
 import random
 import time
+import os
 
 import numpy as np
 import torch
@@ -144,6 +145,7 @@ def main():
 
 
 if __name__ == '__main__':
+    os.system("bash split.sh")
     torch.manual_seed(1234)
     torch.cuda.manual_seed(1234)
     random.seed(1234)
