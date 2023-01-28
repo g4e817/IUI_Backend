@@ -37,3 +37,9 @@ flask run
 # Run Server in debug mode
 flask --debug run
 ```
+
+## Testing
+
+```bash
+curl -X POST -H "Content-Type: multipart/form-data" http://localhost:5000/pred -F "file=@data/demo/cookie.jpg"
+```
