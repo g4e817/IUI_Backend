@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 from model.dataset import CustomDataSet
 from model.network import Network
 
-batch_size = 2 ** 7
+batch_size = 2 ** 5
 
 
 def load_classes():
@@ -144,7 +144,7 @@ print("number of classes", len(classes))
 train_dataset = CustomDataSet(classes, 'data/images/', 'data/cleaned_train.jsonl')
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=0)
 
-test_dataset = CustomDataSet(classes, 'data/images/', 'data/cleaned_test.jsonl')
+test_dataset = CustomDataSet(classes, 'data/images/', 'data/cleaned_test.jsonl', test=True)
 test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
 
 print("number of images in test", len(train_loader) * batch_size)

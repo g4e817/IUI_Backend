@@ -9,7 +9,7 @@ python3 -m venv venv
 pip install -r requirements.txt
 ```
 
-## Run crawler
+## Run crawler and pre-processing
 ```bash
 cd crawler
 # Crawl data
@@ -36,4 +36,10 @@ flask run
 
 # Run Server in debug mode
 flask --debug run
+```
+
+## Testing
+
+```bash
+curl -X POST -H "Content-Type: multipart/form-data" http://localhost:5000/pred -F "file=@data/demo/cookie.jpg"
 ```

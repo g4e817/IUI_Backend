@@ -62,4 +62,6 @@ def predict():
         pred = get_pred(tensor)
         probs = render_pred(pred)
         return jsonify({'prediction': probs})
-    return jsonify({'msg': 'No input file given.'})
+    res = jsonify({'msg': 'No input file given.'})
+    res.headers.add('Access-Control-Allow-Origin', '*')
+    return res

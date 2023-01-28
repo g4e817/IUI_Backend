@@ -8,10 +8,11 @@ from torchvision import transforms as transforms
 
 
 class CustomDataSet(Dataset):
-    def __init__(self, classes, images_path, json_path):
+    def __init__(self, classes, images_path, json_path, test=False):
         self.classes = classes
         self.images_path = images_path
         self.json_path = json_path
+        self.test = test
         self.recipes = self.get_recipes(json_path)
 
     def get_recipes(self, json_path):
@@ -24,12 +25,23 @@ class CustomDataSet(Dataset):
 
     def get_image_tensor(self, filename):
         filepath = os.path.join(self.images_path, os.path.basename(filename))
-        trans = transforms.Compose([
+        pipeline = [
             transforms.Resize(36),
             transforms.CenterCrop(32),
+        ]
+
+        if not self.test:
+            pipeline += [
+                transforms.RandomHorizontalFlip(),
+                transforms.RandomRotation(2),
+            ]
+
+        pipeline += [
             transforms.ToTensor(),
             transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
-        ])
+        ]
+
+        trans = transforms.Compose(pipeline)
         image = Image.open(filepath)
         tensor = trans(image)
         return tensor
