@@ -41,7 +41,7 @@ class CustomDataSet(Dataset):
 
         if not self.test:
             pipeline += [
-                transforms.RandomHorizontalFlip(),
+                # transforms.RandomHorizontalFlip(),
                 transforms.RandomRotation(2),
             ]
 
