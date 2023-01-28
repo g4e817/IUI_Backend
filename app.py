@@ -4,11 +4,10 @@ import torchvision.transforms as transforms
 from PIL import Image
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-import sys
 
 from model.network import Network
 from model.network2 import RecipeModelV2
-from model.util import get_default_device, to_device, imagenet_stats, decode_target
+from model.util import get_default_device, to_device, imagenet_stats, decode_target, load_classes
 
 app = Flask(__name__)
 CORS(app)
@@ -77,30 +76,30 @@ def render_pred(pred):
     return probs
 
 
+def response(data):
+    res = jsonify(data)
+    res.headers.add('Access-Control-Allow-Origin', '*')
+    return res
+
+
 @app.route("/", methods=['GET'])
 def hello_world():
     res = jsonify({'hi': 2})
     return res
 
+
 @app.route("/categories", methods=['GET'])
 def get_categories():
-    with open("data/unique_cats.txt", "r") as f:
-        data = f.read()
+    return response({'categories': load_classes()})
 
-    res = jsonify({'categories': data.splitlines()})
-    return res
 
-#TODO MARKE HOW DO YOU WANT TO SAVE THAT SHIT?
 @app.route('/user-validation', methods=['POST'])
-def userValidation():
+def user_validation():
     file = request.files['file']
     category = request.form.get('category')
-    print(category, file=sys.stdout)
-    print(file, file=sys.stdout)
     if file is not None:
-        return jsonify({'msg': 'success'})
-    res = jsonify({'msg': 'No input file given.'})
-    return res
+        return response({'msg': 'success'})
+    return response({'msg': 'No input file given.'})
 
 
 @app.route('/pred', methods=['POST'])
@@ -110,10 +109,9 @@ def predict():
         tensor = transform_image(file)
         pred = get_pred(tensor)
         probs = render_pred(pred)
-        return jsonify({'prediction': probs})
-    res = jsonify({'msg': 'No input file given.'})
-    res.headers.add('Access-Control-Allow-Origin', '*')
-    return res
+        return response({'prediction': probs})
+
+    return response({'msg': 'No input file given.'})
 
 
 @app.route('/v2/pred', methods=['POST'])
@@ -122,7 +120,6 @@ def predict2():
     if file is not None:
         tensor = to_device(transform_image_v2(file), device)
         pred = get_pred_v2(tensor, threshold=0.1)
-        return jsonify({'prediction': pred})
-    res = jsonify({'msg': 'No input file given.'})
-    res.headers.add('Access-Control-Allow-Origin', '*')
-    return res
+        return response({'prediction': pred})
+
+    return response({'msg': 'No input file given.'})
