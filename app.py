@@ -3,10 +3,13 @@ import torch.nn.functional as nnf
 import torchvision.transforms as transforms
 from PIL import Image
 from flask import Flask, jsonify, request
+from flask_cors import CORS
+import sys
 
 from model.network import Network
 
 app = Flask(__name__)
+CORS(app)
 
 classes = []
 with open('data/unique_cats.txt') as f:
@@ -50,16 +53,37 @@ def render_pred(pred):
 @app.route("/", methods=['GET'])
 def hello_world():
     res = jsonify({'hi': 2})
-    res.headers.add('Access-Control-Allow-Origin', '*')
+    return res
+
+@app.route("/categories", methods=['GET'])
+def get_categories():
+    with open("data/unique_cats.txt", "r") as f:
+        data = f.read()
+    
+    res = jsonify({'categories': data.splitlines()})
+    return res
+
+#TODO MARKE HOW DO YOU WANT TO SAVE THAT SHIT?
+@app.route('/user-validation', methods=['POST'])
+def userValidation():
+    file = request.files['file']
+    category = request.form.get('category')
+    print(category, file=sys.stdout)
+    print(file, file=sys.stdout)
+    if file is not None:
+        return jsonify({'msg': 'success'})
+    res = jsonify({'msg': 'No input file given.'})
     return res
 
 
 @app.route('/pred', methods=['POST'])
 def predict():
     file = request.files['file']
+    print(file, file=sys.stdout)
     if file is not None:
         tensor = transform_image(file)
         pred = get_pred(tensor)
         probs = render_pred(pred)
         return jsonify({'prediction': probs})
-    return jsonify({'msg': 'No input file given.'})
+    res = jsonify({'msg': 'No input file given.'})
+    return res
