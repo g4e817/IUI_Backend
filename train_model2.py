@@ -9,10 +9,10 @@ from torch.utils.data import DataLoader
 from torchvision import models
 from tqdm import tqdm
 
-from model.dataset import CustomDataSet
+from model.dataset import CustomDataSet, FoodDataSet
 from model.metrics import plot_scores, plot_losses, plot_lrs
 from model.network2 import RecipeModelV2, resnetnew
-from model.util import load_classes, get_default_device, DeviceDataLoader, to_device, save_checkpoint
+from model.util import load_classes, get_default_device, DeviceDataLoader, to_device, save_checkpoint, load_food_classes
 
 batch_size = 32
 
@@ -85,14 +85,17 @@ def main():
     device = get_default_device()
     print("running on device", device)
 
-    classes = load_classes()
+    # classes = load_classes()
+    classes = load_food_classes()
     print("number of classes", len(classes))
 
-    train_dataset = CustomDataSet(classes, 'data/images/', 'data/cleaned_train.jsonl', v2=True)
+    # train_dataset = CustomDataSet(classes, 'data/images/', 'data/cleaned_train.jsonl', v2=True)
+    train_dataset = FoodDataSet(classes, 'data/food-101/images/', 'data/food-101/meta/train.txt')
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=8)
     train_dl = DeviceDataLoader(train_loader, device)
 
-    test_dataset = CustomDataSet(classes, 'data/images/', 'data/cleaned_test.jsonl', test=True, v2=True)
+    # test_dataset = CustomDataSet(classes, 'data/images/', 'data/cleaned_test.jsonl', test=True, v2=True)
+    test_dataset = FoodDataSet(classes, 'data/food-101/images/', 'data/food-101/meta/test.txt', test=True)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=8)
     test_dl = DeviceDataLoader(test_loader, device)
 
@@ -109,8 +112,8 @@ def main():
 
     # Input 3 channels (=3 colors)
     # Output 100 channels (=all labels)
-    model = to_device(RecipeModelV2(3, len(classes)), device)
-    # model = to_device(resnetnew(len(classes)), device)
+    # model = to_device(RecipeModelV2(3, len(classes)), device)
+    model = to_device(resnetnew(len(classes)), device)
 
     # Show structure
     # print(model)

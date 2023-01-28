@@ -104,14 +104,10 @@ class RecipeModelV2(ClassificationBase):
 class resnetnew(ClassificationBase):
     def __init__(self, num_classes):
         super().__init__()
-        self.densenet = models.densenet161(pretrained=True)
-        self.densenet.classifier = nn.Sequential(OrderedDict([
-            ('fc1', nn.Linear(1024, 500)),
-            ('relu', nn.ReLU()),
-            ('fc2', nn.Linear(500, num_classes)),
-            ('output', nn.LogSoftmax(dim=1))
-        ]))
+        self.resnet = models.resnet50(pretrained=True)
+        num_ftrs = self.resnet.fc.in_features
+        self.resnet.fc = nn.Linear(num_ftrs, num_classes)
 
     def forward(self, xb):
-        out = self.densenet(xb)
+        out = self.resnet(xb)
         return out

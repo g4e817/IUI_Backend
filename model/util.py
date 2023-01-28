@@ -13,6 +13,13 @@ def load_classes():
             classes.append(line.strip())
     return classes
 
+def load_food_classes():
+    classes = []
+    with open('data/food-101/meta/classes.txt') as f:
+        for line in f:
+            classes.append(line.strip())
+    return classes
+
 
 def save_checkpoint(model, v2=False):
     if v2:

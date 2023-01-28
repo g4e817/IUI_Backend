@@ -71,3 +71,56 @@ class CustomDataSet(Dataset):
 
     def __len__(self):
         return len(self.recipes)
+
+class FoodDataSet(Dataset):
+    def __init__(self, classes, images_path, txt_path, test=False):
+        self.classes = classes
+        self.images_path = images_path
+        self.txt_path = txt_path
+        self.test = test
+        self.recipes = self.get_recipes(txt_path)
+
+    def get_recipes(self, txt_path):
+        recipes = []
+        with open(txt_path) as f:
+            for line in f:
+                recipes.append(line.strip())
+        return recipes
+
+    def get_image_tensor(self, label, filename):
+        filepath = os.path.join(self.images_path, label, filename)
+        pipeline = [
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
+        ]
+
+        if not self.test:
+            pipeline += [
+                # transforms.RandomHorizontalFlip(),
+                transforms.RandomRotation(2),
+            ]
+
+        pipeline += [
+            transforms.ToTensor(),
+            transforms.Normalize(*imagenet_stats)
+        ]
+
+        trans = transforms.Compose(pipeline)
+        image = Image.open(filepath)
+        tensor = trans(image)
+        return tensor
+
+    def get_category_tensor(self, cats):
+        return encode_label(cats, self.classes)
+
+    def __getitem__(self, idx):
+        recipe = self.recipes[idx]
+
+        label, img = recipe.split("/")
+        image_tensor = self.get_image_tensor(label, img + ".jpg")
+        category_tensor = self.get_category_tensor(label)
+
+        return image_tensor, category_tensor
+
+    def __len__(self):
+        return len(self.recipes)
