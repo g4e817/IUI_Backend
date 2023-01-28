@@ -26,23 +26,23 @@ def clean_cat(new_cat):
     new_cat = new_cat.strip()
     return new_cat
 
-
-def get_mapping(cat):
-    if cat in mapping:
-        return mapping[cat]
-    return []
-
-
-def invert_mapping(map):
-    new_map = {}
-    for key, vals in map.items():
-        for val in vals:
-            key = clean_cat(key)
-            val = clean_cat(val)
-            if val not in new_map:
-                new_map[val] = []
-            new_map[val].append(key)
-    return new_map
+#
+# def get_mapping(cat):
+#     if cat in mapping:
+#         return mapping[cat]
+#     return []
+#
+#
+# def invert_mapping(map):
+#     new_map = {}
+#     for key, vals in map.items():
+#         for val in vals:
+#             key = clean_cat(key)
+#             val = clean_cat(val)
+#             if val not in new_map:
+#                 new_map[val] = []
+#             new_map[val].append(key)
+#     return new_map
 
 
 #
@@ -52,11 +52,11 @@ def invert_mapping(map):
 #         line = clean_cat(line)
 #         if len(line) > 2:
 #             stoplist.append(line)
-
-with open('new_categories.json') as f:
-    mapping = json.load(f)
-
-mapping = invert_mapping(mapping)
+#
+# with open('new_categories.json') as f:
+#     mapping = json.load(f)
+#
+# mapping = invert_mapping(mapping)
 
 unique_cats = set()
 
@@ -70,10 +70,11 @@ with open('data/cleaned.jsonl', 'w') as f:
             for cat in item['categories'].split(","):
                 new_cat = cat.replace("Rezepte", "")
                 new_cat = clean_cat(new_cat)
-                new_cats = get_mapping(new_cat)
-                for ncat in new_cats:
-                    cleaned_cats.add(ncat)
-                    unique_cats.add(ncat)
+                # new_cats = get_mapping(new_cat)
+                # for ncat in new_cats:
+                if len(new_cat) > 2:
+                    cleaned_cats.add(new_cat)
+                    unique_cats.add(new_cat)
             if len(cleaned_cats) <= 0:
                 continue
             out = {'categories': list(cleaned_cats), 'image': item['image']}
