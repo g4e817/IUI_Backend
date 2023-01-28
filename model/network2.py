@@ -1,9 +1,6 @@
-import math
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as nnf
-from torch.utils import model_zoo
 from torchvision import models
 
 from model.metrics import F_score

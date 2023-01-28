@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 from model.dataset import CustomDataSet
 from model.metrics import plot_scores, plot_losses, plot_lrs
-from model.network2 import RecipeModelV2, resnet50, Resnet50Templet, resnetnew
+from model.network2 import RecipeModelV2, resnetnew
 from model.util import load_classes, get_default_device, DeviceDataLoader, to_device, save_checkpoint
 
 batch_size = 32
