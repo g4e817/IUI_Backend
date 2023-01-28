@@ -118,7 +118,7 @@ class FoodDataSet(Dataset):
 
         label, img = recipe.split("/")
         image_tensor = self.get_image_tensor(label, img + ".jpg")
-        category_tensor = self.get_category_tensor(label)
+        category_tensor = self.get_category_tensor([label])
 
         return image_tensor, category_tensor
 
