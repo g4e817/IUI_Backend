@@ -119,7 +119,7 @@ def main():
     # print('output shape', outputs.shape)
     # print('sample output', outputs[:2].data)
 
-    epochs = 1
+    epochs = 10
     max_lr = 0.001
     grad_clip = 0.1
     weight_decay = 0.0001
