@@ -24,6 +24,10 @@ def clean_cat(new_cat):
     new_cat = re.sub(r'\d+', ' ', new_cat)
     new_cat = re.sub(r'[^A-Za-z0-9]+', ' ', new_cat)
     new_cat = new_cat.strip()
+
+    if 'cocktail' in new_cat:
+        new_cat = 'cocktail'
+
     return new_cat
 
 

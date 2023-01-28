@@ -9,7 +9,7 @@ python3 -m venv venv
 pip install -r requirements.txt
 ```
 
-## Run crawler
+## Run crawler and pre-processing
 ```bash
 cd crawler
 # Crawl data
