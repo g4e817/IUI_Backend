@@ -9,21 +9,9 @@ from torch.utils.data import DataLoader
 
 from model.dataset import CustomDataSet
 from model.network import Network
+from model.util import load_classes, save_checkpoint
 
 batch_size = 2 ** 5
-
-
-def load_classes():
-    classes = []
-    with open('data/unique_cats.txt') as f:
-        for line in f:
-            classes.append(line.strip())
-    return classes
-
-
-def save_checkpoint():
-    path = 'data/model_checkpoint.pth'
-    torch.save(model.state_dict(), path)
 
 
 def test_accuracy():
@@ -85,7 +73,7 @@ def train(num_epochs):
 
         # we want to save the model if the accuracy is the best
         if accuracy > best_accuracy:
-            save_checkpoint()
+            save_checkpoint(model)
             best_accuracy = accuracy
 
 

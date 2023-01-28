@@ -6,13 +6,16 @@ from PIL import Image
 from torch.utils.data import Dataset
 from torchvision import transforms as transforms
 
+from model.util import encode_label, imagenet_stats
+
 
 class CustomDataSet(Dataset):
-    def __init__(self, classes, images_path, json_path, test=False):
+    def __init__(self, classes, images_path, json_path, test=False, v2=False):
         self.classes = classes
         self.images_path = images_path
         self.json_path = json_path
         self.test = test
+        self.v2 = v2
         self.recipes = self.get_recipes(json_path)
 
     def get_recipes(self, json_path):
@@ -30,6 +33,12 @@ class CustomDataSet(Dataset):
             transforms.CenterCrop(32),
         ]
 
+        if self.v2:
+            pipeline = [
+                transforms.Resize(150),
+                transforms.CenterCrop(128),
+            ]
+
         if not self.test:
             pipeline += [
                 transforms.RandomHorizontalFlip(),
@@ -38,7 +47,7 @@ class CustomDataSet(Dataset):
 
         pipeline += [
             transforms.ToTensor(),
-            transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
+            transforms.Normalize(*imagenet_stats)
         ]
 
         trans = transforms.Compose(pipeline)
@@ -46,20 +55,19 @@ class CustomDataSet(Dataset):
         tensor = trans(image)
         return tensor
 
+    def get_category_tensor(self, cats):
+        return encode_label(cats, self.classes)
+
     def __getitem__(self, idx):
         recipe = self.recipes[idx]
-        cats = recipe['categories']
+        image_tensor = self.get_image_tensor(recipe['image'])
 
-        # Get random category for training
-        # cat = random.choice(cats)
-        # Get first cat
-        cat = cats[0]
+        if self.v2:
+            category_tensor = self.get_category_tensor(recipe['categories'])
+        else:
+            category_tensor = torch.as_tensor(self.classes.index(recipe['categories'][0]))
 
-        tensor = self.get_image_tensor(recipe['image'])
-        # indices = torch.as_tensor(le.transform(cats))
-        index = torch.as_tensor(self.classes.index(cat))
-
-        return tensor, index
+        return image_tensor, category_tensor
 
     def __len__(self):
         return len(self.recipes)
