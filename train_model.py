@@ -168,10 +168,10 @@ print("The model will be running on", device, "device")
 # Convert model parameters and buffers to CPU or Cuda
 model.to(device)
 
-# train(num_epochs=5)
-# print("Finished training")
-#
-# test_accuracy()
+train(num_epochs=2)
+print("Finished training")
+
+test_accuracy()
 
 # Load best network (best accuracy)
 model = Network(classes)

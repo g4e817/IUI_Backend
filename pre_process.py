@@ -1,5 +1,8 @@
 import json
 
+import re
+
+
 def convert_umlauts(content):
     # pre-processing: convert umlauts
     umlaut_mapping = {
@@ -18,6 +21,11 @@ def convert_umlauts(content):
 stoplist = []
 with open('cat_stoplist.txt') as f:
     for line in f:
+        line = convert_umlauts(line)
+        line = line.lower()
+        line = re.sub(r'\d+', ' ', line)
+        line = re.sub(r'[^A-Za-z0-9]+', ' ', line)
+        line = line.strip()
         stoplist.append(line)
 
 unique_cats = set()
@@ -31,11 +39,12 @@ with open('data/cleaned.jsonl', 'w') as f:
             cleaned_cats = []
             for cat in item['categories'].split(","):
                 new_cat = cat.replace("Rezepte", "")
-                new_cat = new_cat.strip()
                 new_cat = convert_umlauts(new_cat)
                 new_cat = new_cat.lower()
-                # TODO: clean other special characters
-                if new_cat not in stoplist:
+                new_cat = re.sub(r'\d+', ' ', new_cat)
+                new_cat = re.sub(r'[^A-Za-z0-9]+', ' ', new_cat)
+                new_cat = new_cat.strip()
+                if new_cat not in stoplist and len(new_cat) > 2:
                     unique_cats.add(new_cat)
                     cleaned_cats.append(new_cat)
             if len(cleaned_cats) <= 0:
