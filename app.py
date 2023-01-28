@@ -3,12 +3,15 @@ import torch.nn.functional as nnf
 import torchvision.transforms as transforms
 from PIL import Image
 from flask import Flask, jsonify, request
+from flask_cors import CORS
+import sys
 
 from model.network import Network
 from model.network2 import RecipeModelV2
 from model.util import get_default_device, to_device, imagenet_stats, decode_target
 
 app = Flask(__name__)
+CORS(app)
 
 classes = []
 with open('data/unique_cats.txt') as f:
@@ -77,7 +80,26 @@ def render_pred(pred):
 @app.route("/", methods=['GET'])
 def hello_world():
     res = jsonify({'hi': 2})
-    res.headers.add('Access-Control-Allow-Origin', '*')
+    return res
+
+@app.route("/categories", methods=['GET'])
+def get_categories():
+    with open("data/unique_cats.txt", "r") as f:
+        data = f.read()
+
+    res = jsonify({'categories': data.splitlines()})
+    return res
+
+#TODO MARKE HOW DO YOU WANT TO SAVE THAT SHIT?
+@app.route('/user-validation', methods=['POST'])
+def userValidation():
+    file = request.files['file']
+    category = request.form.get('category')
+    print(category, file=sys.stdout)
+    print(file, file=sys.stdout)
+    if file is not None:
+        return jsonify({'msg': 'success'})
+    res = jsonify({'msg': 'No input file given.'})
     return res
 
 
