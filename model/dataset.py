@@ -35,8 +35,8 @@ class CustomDataSet(Dataset):
 
         if self.v2:
             pipeline = [
-                transforms.Resize(150),
-                transforms.CenterCrop(128),
+                transforms.Resize(256),
+                transforms.CenterCrop(224),
             ]
 
         if not self.test:
