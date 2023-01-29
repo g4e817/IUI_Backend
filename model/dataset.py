@@ -1,5 +1,6 @@
 import json
 import os
+import random
 
 import torch
 from PIL import Image
@@ -107,10 +108,7 @@ class FoodDataSet(Dataset):
 
         trans = transforms.Compose(pipeline)
         image = Image.open(filepath)
-        if image.mode == "L":
-            return torch.as_tensor([0.0, 0.0, 0.0])
-        tensor = trans(image)
-        return tensor
+        return trans(image)
 
     def get_category_tensor(self, cats):
         return encode_label(cats, self.classes)
