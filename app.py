@@ -6,7 +6,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 from model.network import Network
-from model.network2 import RecipeModelV2
+from model.network2 import RecipeModelV2, resnetnew
 from model.util import get_default_device, to_device, imagenet_stats, decode_target, load_classes
 
 app = Flask(__name__)
@@ -17,6 +17,11 @@ with open('data/unique_cats.txt') as f:
     for line in f:
         classes.append(line.strip())
 
+food_classes = []
+with open('data/food-101/meta/classes.txt') as f:
+    for line in f:
+        food_classes.append(line.strip())
+
 device = get_default_device()
 
 model = Network(classes)
@@ -26,6 +31,10 @@ model.eval()
 model2 = to_device(RecipeModelV2(3, len(classes)), device)
 model2.load_state_dict(torch.load('data/model2_checkpoint.pth'))
 model2.eval()
+
+model3 = to_device(resnetnew(len(food_classes), pretrained=False), device)
+model3.load_state_dict(torch.load('data/model3_checkpoint.pth'))
+model3.eval()
 
 
 def transform_image(file):
@@ -53,6 +62,18 @@ def transform_image_v2(file):
     return tensor
 
 
+def transform_image_v3(file):
+    trans = transforms.Compose([
+        transforms.Resize(256),
+        transforms.ToTensor(),
+        transforms.Normalize(*imagenet_stats)
+    ])
+    image = Image.open(file)
+    tensor = trans(image)
+    tensor.unsqueeze_(0)
+    return tensor
+
+
 def get_pred(tensor, n=5):
     outputs = model.forward(tensor)
     prob = nnf.softmax(outputs, dim=1)
@@ -65,6 +86,12 @@ def get_pred_v2(tensor, threshold=0.5):
     print(outputs)
     prediction = outputs[0]
     return decode_target(prediction, classes, threshold=threshold)
+
+def get_pred_v3(tensor, threshold=0.5):
+    outputs = model2(tensor)
+    print(outputs)
+    prediction = outputs[0]
+    return decode_target(prediction, food_classes, threshold=threshold)
 
 
 def render_pred(pred):
@@ -120,6 +147,17 @@ def predict2():
     if file is not None:
         tensor = to_device(transform_image_v2(file), device)
         pred = get_pred_v2(tensor, threshold=0.1)
+        return response({'prediction': pred})
+
+    return response({'msg': 'No input file given.'})
+
+
+@app.route('/v3/pred', methods=['POST'])
+def predict3():
+    file = request.files['file']
+    if file is not None:
+        tensor = to_device(transform_image_v3(file), device)
+        pred = get_pred_v3(tensor, threshold=0.1)
         return response({'prediction': pred})
 
     return response({'msg': 'No input file given.'})

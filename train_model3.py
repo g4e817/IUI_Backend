@@ -85,14 +85,17 @@ def main():
     device = get_default_device()
     print("running on device", device)
 
-    classes = load_classes()
+    # classes = load_classes()
+    classes = load_food_classes()
     print("number of classes", len(classes))
 
-    train_dataset = CustomDataSet(classes, 'data/images/', 'data/cleaned_train.jsonl', v2=True)
+    # train_dataset = CustomDataSet(classes, 'data/images/', 'data/cleaned_train.jsonl', v2=True)
+    train_dataset = FoodDataSet(classes, 'data/food-101/images/', 'data/food-101/meta/train_cleaned.txt')
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=0)
     train_dl = DeviceDataLoader(train_loader, device)
 
-    test_dataset = CustomDataSet(classes, 'data/images/', 'data/cleaned_test.jsonl', test=True, v2=True)
+    # test_dataset = CustomDataSet(classes, 'data/images/', 'data/cleaned_test.jsonl', test=True, v2=True)
+    test_dataset = FoodDataSet(classes, 'data/food-101/images/', 'data/food-101/meta/test_cleaned.txt', test=True)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
     test_dl = DeviceDataLoader(test_loader, device)
 
@@ -122,7 +125,7 @@ def main():
     # print('output shape', outputs.shape)
     # print('sample output', outputs[:2].data)
 
-    epochs = 1
+    epochs = 10
     max_lr = 0.001
     grad_clip = 0.1
     weight_decay = 0.0001
