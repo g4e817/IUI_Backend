@@ -78,14 +78,23 @@ def get_pred(tensor, n=5):
     outputs = model.forward(tensor)
     prob = nnf.softmax(outputs, dim=1)
     top_p, top_class = prob.topk(n, dim=1)
-    return zip(top_p.tolist()[0], top_class.tolist()[0])
+    return list(zip(top_p.tolist()[0], top_class.tolist()[0]))
 
 
 def get_pred_v2(tensor, threshold=0.5):
     outputs = model2(tensor)
     print(outputs)
     prediction = outputs[0]
-    return decode_target(prediction, classes, threshold=threshold)
+    return decode_target2(prediction, classes, threshold=threshold)
+
+def decode_target2(target, classes, threshold=0.5):
+    print(target)
+    result = []
+    for idx, item in enumerate(target):
+        # Only return label if threshold >= 0.5
+        if item >= threshold:
+            result.append([classes[idx], float(item)])
+    return result
 
 
 def get_pred_v3(tensor, threshold=0.5):
