@@ -32,8 +32,8 @@ def save_checkpoint(model, v2=False):
 def get_default_device():
     if torch.cuda.is_available():
         return torch.device('cuda')
-    elif torch.backends.mps.is_available():
-        return torch.device('mps')
+    # elif torch.backends.mps.is_available():
+    #     return torch.device('mps')
     else:
         return torch.device('cpu')
 

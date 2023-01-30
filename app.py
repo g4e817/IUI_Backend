@@ -13,7 +13,7 @@ app = Flask(__name__)
 CORS(app)
 
 classes = []
-with open('data/unique_cats.txt') as f:
+with open('data/unique_cats_jan.txt') as f:
     for line in f:
         classes.append(line.strip())
 
@@ -23,18 +23,20 @@ with open('data/food-101/meta/classes.txt') as f:
         food_classes.append(line.strip())
 
 device = get_default_device()
+#
+# model = Network(classes)
+# model.load_state_dict(torch.load('data/model_checkpoint.pth'))
+# model.eval()
 
-model = Network(classes)
-model.load_state_dict(torch.load('data/model_checkpoint.pth'))
-model.eval()
+print("classes", len(classes))
 
 model2 = to_device(RecipeModelV2(3, len(classes)), device)
-model2.load_state_dict(torch.load('data/model2_checkpoint.pth'))
+model2.load_state_dict(torch.load('data/model2_checkpoint_old_data_26_batchsize.pth', map_location=torch.device(device)))
 model2.eval()
 
-model3 = to_device(resnetnew(len(food_classes), pretrained=False), device)
-model3.load_state_dict(torch.load('data/model3_checkpoint.pth'))
-model3.eval()
+# model3 = to_device(resnetnew(len(food_classes), pretrained=False), device)
+# model3.load_state_dict(torch.load('data/model3_checkpoint.pth'))
+# model3.eval()
 
 
 def transform_image(file):
@@ -52,7 +54,8 @@ def transform_image(file):
 
 def transform_image_v2(file):
     trans = transforms.Compose([
-        transforms.Resize(224),
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
         transforms.ToTensor(),
         transforms.Normalize(*imagenet_stats)
     ])
@@ -74,11 +77,11 @@ def transform_image_v3(file):
     return tensor
 
 
-def get_pred(tensor, n=5):
-    outputs = model.forward(tensor)
-    prob = nnf.softmax(outputs, dim=1)
-    top_p, top_class = prob.topk(n, dim=1)
-    return list(zip(top_p.tolist()[0], top_class.tolist()[0]))
+# def get_pred(tensor, n=5):
+#     outputs = model.forward(tensor)
+#     prob = nnf.softmax(outputs, dim=1)
+#     top_p, top_class = prob.topk(n, dim=1)
+#     return list(zip(top_p.tolist()[0], top_class.tolist()[0]))
 
 
 def get_pred_v2(tensor, threshold=0.5):
@@ -96,12 +99,12 @@ def decode_target2(target, classes, threshold=0.5):
             result.append([classes[idx], float(item)])
     return result
 
-
-def get_pred_v3(tensor, threshold=0.5):
-    outputs = model3(tensor)
-    print(outputs)
-    prediction = outputs[0]
-    return decode_target(prediction, food_classes, threshold=threshold)
+#
+# def get_pred_v3(tensor, threshold=0.5):
+#     outputs = model3(tensor)
+#     print(outputs)
+#     prediction = outputs[0]
+#     return decode_target(prediction, food_classes, threshold=threshold)
 
 
 def render_pred(pred):
@@ -139,16 +142,16 @@ def user_validation():
     return response({'msg': 'No input file given.'})
 
 
-@app.route('/pred', methods=['POST'])
-def predict():
-    file = request.files['file']
-    if file is not None:
-        tensor = transform_image(file)
-        pred = get_pred(tensor)
-        probs = render_pred(pred)
-        return response({'prediction': probs})
-
-    return response({'msg': 'No input file given.'})
+# @app.route('/pred', methods=['POST'])
+# def predict():
+#     file = request.files['file']
+#     if file is not None:
+#         tensor = transform_image(file)
+#         pred = get_pred(tensor)
+#         probs = render_pred(pred)
+#         return response({'prediction': probs})
+#
+#     return response({'msg': 'No input file given.'})
 
 
 @app.route('/v2/pred', methods=['POST'])
@@ -156,18 +159,19 @@ def predict2():
     file = request.files['file']
     if file is not None:
         tensor = to_device(transform_image_v2(file), device)
+        print(tensor.size())
         pred = get_pred_v2(tensor, threshold=0.1)
         return response({'prediction': pred})
 
     return response({'msg': 'No input file given.'})
 
 
-@app.route('/v3/pred', methods=['POST'])
-def predict3():
-    file = request.files['file']
-    if file is not None:
-        tensor = to_device(transform_image_v3(file), device)
-        pred = get_pred_v3(tensor, threshold=0.1)
-        return response({'prediction': pred})
-
-    return response({'msg': 'No input file given.'})
+# @app.route('/v3/pred', methods=['POST'])
+# def predict3():
+#     file = request.files['file']
+#     if file is not None:
+#         tensor = to_device(transform_image_v3(file), device)
+#         pred = get_pred_v3(tensor, threshold=0.1)
+#         return response({'prediction': pred})
+#
+#     return response({'msg': 'No input file given.'})
