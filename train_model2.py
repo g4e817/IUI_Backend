@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 from model.dataset import CustomDataSet
 from model.metrics import plot_scores, plot_losses, plot_lrs
-from model.network2 import resnetnew
+from model.network2 import RecipeModelV2
 from model.util import load_classes, get_default_device, DeviceDataLoader, to_device, save_checkpoint
 
 batch_size = 64
@@ -108,8 +108,8 @@ def main():
 
     # Input 3 channels (=3 colors)
     # Output 100 channels (=all labels)
-    # model = to_device(RecipeModelV2(3, len(classes)), device)
-    model = to_device(resnetnew(len(classes)), device)
+    model = to_device(RecipeModelV2(3, len(classes)), device)
+    # model = to_device(resnetnew(len(classes)), device)
 
     # Show structure
     # print(model)
