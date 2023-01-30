@@ -87,8 +87,9 @@ def get_pred_v2(tensor, threshold=0.5):
     prediction = outputs[0]
     return decode_target(prediction, classes, threshold=threshold)
 
+
 def get_pred_v3(tensor, threshold=0.5):
-    outputs = model2(tensor)
+    outputs = model3(tensor)
     print(outputs)
     prediction = outputs[0]
     return decode_target(prediction, food_classes, threshold=threshold)

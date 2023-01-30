@@ -69,6 +69,7 @@ def encode_label(label, classes):
 
 
 def decode_target(target, classes, threshold=0.5):
+    print(target)
     result = []
     for idx, item in enumerate(target):
         # Only return label if threshold >= 0.5
