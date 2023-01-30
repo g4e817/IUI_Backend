@@ -1,18 +1,17 @@
+import os
 import random
 import time
-import os
 
 import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
-from torchvision import models
 from tqdm import tqdm
 
-from model.dataset import CustomDataSet, FoodDataSet
+from model.dataset import CustomDataSet
 from model.metrics import plot_scores, plot_losses, plot_lrs
-from model.network2 import RecipeModelV2, resnetnew
-from model.util import load_classes, get_default_device, DeviceDataLoader, to_device, save_checkpoint, load_food_classes
+from model.network2 import resnetnew
+from model.util import load_classes, get_default_device, DeviceDataLoader, to_device, save_checkpoint
 
 batch_size = 64
 
