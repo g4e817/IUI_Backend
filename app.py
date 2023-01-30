@@ -52,7 +52,7 @@ def transform_image(file):
 
 def transform_image_v2(file):
     trans = transforms.Compose([
-        transforms.Resize(128),
+        transforms.Resize(224),
         transforms.ToTensor(),
         transforms.Normalize(*imagenet_stats)
     ])
